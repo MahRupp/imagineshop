@@ -27,7 +27,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 app.get("/", async (req, res) => {
-  res.send("IMAGINESHOP - tudo pra voce e seu lar!!");
+  res.send("IMAGINESHOP - tudo pra voce e seu lar<3!!");
 });
 
 app.post('/login', async (req, res) => {
