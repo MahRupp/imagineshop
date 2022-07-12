@@ -48,6 +48,7 @@ app.get('/products', async(req,res)=>{
   return res.status(200).json(products);
 });
 
+app.use('/uploads', express.static('uploads'));
 app.use(authMiddleware);
 
 app.post("/users", async (req, res) => {
