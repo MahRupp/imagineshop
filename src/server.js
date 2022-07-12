@@ -1,17 +1,33 @@
 import "dotenv/config";
 import express from "express";
 import jwt from "jsonwebtoken";
+import multer from "multer";
+import crypto from "crypto";
+import { extname } from "path";
 
 import { authMiddleware } from "./middlewares/authMiddleware.js";
+import { ProductService } from "./services/product-service.js";
 import { UserService } from "./services/user-services.js";
 
 const app = express();
-const port = 3000;
+const port = 3300;
+const storage= multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');    
+  },
+  filename: (req, file, cb) => {
+    const newFileName = crypto.randomBytes(32).toString('hex');
+    const fileExtension = extname(file.originalname);
+    cb(null, `${newFileName}${fileExtension}`);
+  }
+});
+const uploadMiddleware = multer({ storage });
 
 app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
 app.get("/", async (req, res) => {
-  res.send("IMAGINESHOP - seu site de compras");
+  res.send("IMAGINESHOP - tudo pra voce e seu lar!!");
 });
 
 app.post('/login', async (req, res) => {
@@ -20,10 +36,16 @@ app.post('/login', async (req, res) => {
   const userLogged = await userService.login(email, password);
   if (userLogged) {
     const secretKey = process.env.SECRET_KEY;
-    const token = jwt.sign({ user: userLogged }, secretKey, { expiresIn: "3600s" });
+    const token = jwt.sign({ user: userLogged }, secretKey, { expiresIn: "1d" });
     return res.status(200).json({ token });
   }
   return res.status(400).json({ message: "E-mail ou senha invalidos." });  
+});
+
+app.get('/products', async(req,res)=>{
+  const productService = new ProductService();
+  const products = await productService.findAll();
+  return res.status(200).json(products);
 });
 
 app.use(authMiddleware);
@@ -71,10 +93,19 @@ app.put("/users/:id", async (req, res) => {
   const userService = new UserService();
   const findUser = await userService.findById(id);
   if (findUser) {
-    const userUpdated = await userService.update(id, user);
+    await userService.update(id, user);
     return res.status(200).json({ message: "Usuário atualizado com sucesso." });
   }
   return res.status(404).json({ message: "Usuário não encontrado." });
+});
+
+app.post('/products', uploadMiddleware.single('fileName'), async (req, res) => {
+  const { name, description, price, summary, stock } = req.body;
+  const fileName = req.file.fileName;
+  const product = { name, description, price, summary, stock, fileName };
+  const productService = new ProductService();
+  await productService.create(product);
+  return res.status(201).json(product);
 });
 
 app.listen(process.env.PORT || port, () => {

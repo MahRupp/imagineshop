@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import UserModel from "../schema/users.schema.js";
+import UserModel from "../schema/users-schema.js";
 
 export class UserService {
   constructor() {}
