@@ -5,7 +5,7 @@ export class UserService {
   constructor() {}
 
   async create(user) {
-    await UserModel.create(user);
+    await UserModel.create(user);    
   }
 
   async findAll() {

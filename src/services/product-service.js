@@ -13,7 +13,5 @@ export class ProductService {
 
   async findById(id) {
     return await ProductModel.findById(id);
-  }
-
-   
+  }   
 }

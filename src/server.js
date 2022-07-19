@@ -11,7 +11,7 @@ import { UserService } from "./services/user-services.js";
 
 const app = express();
 const port = 3300;
-const storage= multer.diskStorage({
+const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');    
   },
