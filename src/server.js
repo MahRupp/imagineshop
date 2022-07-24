@@ -100,10 +100,10 @@ app.put("/users/:id", async (req, res) => {
   return res.status(404).json({ message: "Usuário não encontrado." });
 });
 
-app.post('/products', uploadMiddleware.single('fileName'), async (req, res) => {
+app.post('/products', uploadMiddleware.single('image'), async (req, res) => {
   const { name, description, price, summary, stock } = req.body;
-  const fileName = req.file.fileName;
-  const product = { name, description, price, summary, stock, fileName };
+  const image = req.file.fileName;
+  const product = { name, description, price, summary, stock, image };
   const productService = new ProductService();
   await productService.create(product);
   return res.status(201).json(product);
