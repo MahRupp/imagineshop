@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import multer from "multer";
 import crypto from "crypto";
 import { extname } from "path";
+import cors from 'cors';
+
 
 import { authMiddleware } from "./middlewares/authMiddleware.js";
 import { ProductService } from "./services/product-service.js";
@@ -23,6 +25,7 @@ const storage = multer.diskStorage({
 });
 const uploadMiddleware = multer({ storage });
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
@@ -113,12 +116,24 @@ app.put("/users/:id", async (req, res) => {
 
 app.post('/products', uploadMiddleware.single('image'), async (req, res) => {
   const { name, description, price, summary, stock } = req.body;
-  const image = req.file.fileName;
-  const product = { name, description, price, summary, stock, image };
+  const fileName= req.file.filename;
+  const product = { name, description, price, summary, stock, fileName };
   const productService = new ProductService();
   await productService.create(product);
   return res.status(201).json(product);
 });
+
+
+app.post('/products/sell',  async (req, res) => {
+  console.log('products')
+  const { products } = req.body;
+  const productService = new ProductService();
+  for(const product of products) {
+    await productService.sellProducts(product);
+  }
+  return res.status(200).json({message: 'success'});
+});
+
 
 app.listen(process.env.PORT || port, () => {
   console.log(`App listening on http://localhost:${port}`);

@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import ProductModel from "../schema/product-schema.js";
 
 export class ProductService {
@@ -13,5 +14,23 @@ export class ProductService {
 
   async findById(id) {
     return await ProductModel.findById(id);
-  }   
+  }  
+  
+  // async sellProducts(id) {
+  //   const product = await this.findById(id);
+  //   if(product && product.stock > 0) {
+  //     product.stock = product.stock -1;
+  //     return await ProductModel.updateOne ({_id: ObjectId(id)}, product);
+  //   }
+  //   return null;
+  // }
+
+  async sellProducts(id) {
+    const product = await this.findById(id);
+    if(product && product.stock > 0) {
+      product.stock = product.stock - 1;
+      return await ProductModel.updateOne({ _id: ObjectId(id)}, product);
+    } 
+    return null;
+  }
 }
